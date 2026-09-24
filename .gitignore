@@ -1,0 +1,11 @@
+# Python bytecode (embeds absolute local paths)
+__pycache__/
+*.py[cod]
+
+# Claude Code local settings (machine-specific)
+.claude/settings.local.json
+
+# OS clutter
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -1,0 +1,2 @@
+# No additional dependencies required
+# Pillow and numpy are already included in ComfyUI

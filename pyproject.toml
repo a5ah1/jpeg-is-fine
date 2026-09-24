@@ -1,0 +1,14 @@
+[project]
+name = "jpeg-is-fine"
+version = "1.1.0"
+description = "A focused JPEG-saving node for ComfyUI with 4:4:4 chroma subsampling and workflow preservation"
+license = { file = "LICENSE" }
+readme = "README.md"
+requires-python = ">=3.10"
+
+[project.urls]
+Repository = "https://github.com/a5ah1/jpeg-is-fine"
+
+[tool.comfy]
+PublisherId = "a5ah1"
+DisplayName = "JPEG is Fine"

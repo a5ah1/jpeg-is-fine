@@ -1,0 +1,5 @@
+# Kept in git but left out of the Comfy Registry download (untracked files are already excluded)
+CLAUDE.md
+project-specifics.md
+.claude/
+.github/
