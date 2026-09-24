@@ -25,6 +25,7 @@ The node is inspired by [save-image-extended-comfyui](https://github.com/audiosc
 
 - Developed on Windows
 - Node folder lives in `ComfyUI/custom_nodes/jpeg-is-fine/` (any folder name works — imports are relative)
+- For development, link the repo into `custom_nodes` (a directory junction on Windows) instead of copying it. Remove the link before installing the published node from the registry, or two `JPEGIsFine` nodes will clash
 - Testing: restart ComfyUI after code changes, refresh browser
 - Check terminal output for Python errors on startup
 
@@ -51,6 +52,7 @@ jpeg-is-fine/
 - GitHub repo and Comfy Registry node ID are both `jpeg-is-fine`. The registry ID is permanent — never rename `name` in `pyproject.toml`
 - Release = bump `version` in `pyproject.toml` and push to `main`; the GitHub Action publishes it (needs the `REGISTRY_ACCESS_TOKEN` secret)
 - Everything in the repo is public. Keep out anything identifying the author or their machine: local paths, computer name, real name, personal email. `__pycache__/` is ignored because `.pyc` files embed absolute local paths
+- Commit metadata is public too: the repo-local git identity is the GitHub noreply address, and commits are made with `TZ=UTC0 git commit` (Git Bash) so timestamps don't reveal the author's timezone
 
 ## Key Implementation Notes
 
@@ -80,7 +82,11 @@ The node receives workflow data via ComfyUI's hidden input mechanism:
 }
 ```
 
-These are combined into a single JSON object for EXIF embedding and JSON export.
+Both are combined into a single JSON object for EXIF embedding. The JSON export uses only `extra_pnginfo["workflow"]`, the format ComfyUI can load (see project-specifics.md).
+
+### Output
+
+The node passes `images` through unchanged (`RETURN_TYPES = ("IMAGE",)`) so it can sit mid-chain, but stays `OUTPUT_NODE = True`, so it runs even when the output is unconnected.
 
 ### Path Handling
 
@@ -100,6 +106,8 @@ Never manually concatenate paths with string operations or worry about slash dir
 - Use EXIF tag 270 (ImageDescription) for workflow JSON
 - Keep it under ~60KB to stay within JPEG EXIF limits: if too large, drop the `workflow` key (then everything) and log a warning. Never truncate — truncated JSON can't be parsed
 - Pillow's `Image.Exif()` class handles encoding
+- ComfyUI's frontend can't load workflows from JPEGs: it reads PNG, WebP, AVIF, audio, video, SVG, GLB and JSON, and a dropped JPEG becomes a Load Image node. The embedded JSON is for archiving and other tools. The JSON export is how users reopen a workflow in ComfyUI
+- Decided against (2026-09): a frontend extension that loads workflows from dropped JPEGs, because it would replace that drop-to-Load-Image default. Also decided against ComfyUI's WebP EXIF layout (`workflow:`/`prompt:` in the Make/Model tags), because photo apps would show the JSON as camera maker and model. Revisit only if ComfyUI adds native JPEG workflow loading, and then match the layout it reads
 
 ### Counter Logic
 
